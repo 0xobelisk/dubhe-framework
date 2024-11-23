@@ -14,18 +14,20 @@ module dubhe::dapps_system {
         address::from_ascii_bytes(&dapp_package_id_string)
     }
 
-    public entry fun register<T>(
+    public entry fun register<UpgradeCap: key>(
         dapps: &mut Dapps,
+        upgrade_cap: &UpgradeCap,
         name: String,
         description: String,
         clock: &Clock,
         ctx: &mut TxContext
     ) {
-        let dapp_package_id = current_package_id<T>();
-        assert!(!dapps.borrow_metadata().contains_key(dapp_package_id), 0);
+        
+        let dapp_id = object::id_address<UpgradeCap>(upgrade_cap);
+        assert!(!dapps.borrow_metadata().contains_key(dapp_id), 0);
 
         dapps.borrow_mut_metadata().set(
-            dapp_package_id,
+            dapp_id,
             dapp_metadata::new(
                 name,
                 description,
@@ -35,74 +37,57 @@ module dubhe::dapps_system {
                 vector[]
             )
         );
-        dapps.borrow_mut_admin().set(dapp_package_id, ctx.sender());
-        dapps.borrow_mut_version().set(dapp_package_id, 0);
-        dapps.borrow_mut_safe_mode().set(dapp_package_id, false);
+        dapps.borrow_mut_admin().set(dapp_id, ctx.sender());
+        dapps.borrow_mut_version().set(dapp_id, 0);
+        dapps.borrow_mut_safe_mode().set(dapp_id, false);
     }
 
-    public entry fun upgrade<T>(dapps: &mut Dapps, old_package_id: address, ctx: &mut TxContext) {
-        let new_package_id = current_package_id<T>();
-        assert!(!dapps.borrow_metadata().contains_key(new_package_id), 0);
-        assert!(dapps.borrow_metadata().contains_key(old_package_id), 0);
-
-        let admin = dapps.borrow_mut_admin().take(old_package_id);
-        assert!(admin == ctx.sender(), 0);
-        let metadata = dapps.borrow_mut_metadata().take(old_package_id);
-        let version = dapps.borrow_mut_version().take(old_package_id) + 1;
-        let safe_mode = dapps.borrow_mut_safe_mode().take(old_package_id);
-
-        dapps.borrow_mut_metadata().set(new_package_id, metadata);
-        dapps.borrow_mut_admin().set(new_package_id, admin);
-        dapps.borrow_mut_version().set(new_package_id, version);
-        dapps.borrow_mut_safe_mode().set(new_package_id, safe_mode);
-    }
-
-    public entry fun set_metadata(
+    public entry fun set_metadata<UpgradeCap: key>(
         dapps: &mut Dapps,
-        package_id: address,
+        upgrade_cap: &UpgradeCap,
         name: String,
         description: String,
         icon_url: String,
         website_url: String,
-        partners: vector<String>,
-        ctx: &mut TxContext
+        partners: vector<String>
     ) {
-        assert!(dapps.borrow_admin().get(package_id) == ctx.sender(), 0);
-        assert!(dapps.borrow_metadata().contains_key(package_id), 0);
-        let created_at = dapps.borrow_mut_metadata().take(package_id).get_created_at();
-        dapps.borrow_mut_metadata().set(package_id, dapp_metadata::new(name, description, icon_url, website_url, created_at, partners));
+        let dapp_id = object::id_address<UpgradeCap>(upgrade_cap);
+        assert!(dapps.borrow_metadata().contains_key(dapp_id), 0);
+        let created_at = dapps.borrow_mut_metadata().take(dapp_id).get_created_at();
+        dapps.borrow_mut_metadata().set(dapp_id, dapp_metadata::new(name, description, icon_url, website_url, created_at, partners));
     }
 
-    public entry fun transfer_ownership(
+    public entry fun transfer_ownership<UpgradeCap: key>(
         dapps: &mut Dapps,
-        package_id: address,
+        upgrade_cap: &UpgradeCap,
         new_admin: address,
         ctx: &mut TxContext
     ) {
-        assert!(dapps.borrow_admin().get(package_id) == ctx.sender(), 0);
-        dapps.borrow_mut_admin().set(package_id, new_admin);
+        let dapp_id = object::id_address<UpgradeCap>(upgrade_cap);
+        assert!(dapps.borrow_admin().get(dapp_id) == ctx.sender(), 0);
+        dapps.borrow_mut_admin().set(dapp_id, new_admin);
     }
 
-    public entry fun add_verification(dapps: &mut Dapps, root: &Root, package_id: address, ctx: &mut TxContext) {
+    public entry fun add_verification(dapps: &mut Dapps, root: &Root, dapp_id: address, ctx: &mut TxContext) {
         root_system::ensure_root(root, ctx);
-        assert!(dapps.borrow_metadata().contains_key(package_id), 0);
-        dapps.borrow_mut_verified().set(package_id, true);
+        assert!(dapps.borrow_metadata().contains_key(dapp_id), 0);
+        dapps.borrow_mut_verified().set(dapp_id, true);
     }
 
-    public entry fun remove_verification(dapps: &mut Dapps, root: &Root, package_id: address, ctx: &mut TxContext) {
+    public entry fun remove_verification(dapps: &mut Dapps, root: &Root, dapp_id: address, ctx: &mut TxContext) {
         root_system::ensure_root(root, ctx);
-        assert!(dapps.borrow_metadata().contains_key(package_id), 0);
-        dapps.borrow_mut_verified().remove(package_id);
+        assert!(dapps.borrow_metadata().contains_key(dapp_id), 0);
+        dapps.borrow_mut_verified().remove(dapp_id);
     }
 
     public fun ensure_admin<T: drop>(dapps: &Dapps, ctx: &TxContext) {
-        let package_id = current_package_id<T>();
-        assert!(dapps.borrow_admin().get(package_id) == ctx.sender(), 0);
+        let dapp_id = current_package_id<T>();
+        assert!(dapps.borrow_admin().get(dapp_id) == ctx.sender(), 0);
     }
 
     public fun ensure_no_safe_mode<T: drop>(dapps: &Dapps) {
-        let package_id = current_package_id<T>();
-        assert!(!dapps.borrow_safe_mode().get(package_id), 0);
+        let dapp_id = current_package_id<T>();
+        assert!(!dapps.borrow_safe_mode().get(dapp_id), 0);
     }
 
 }
