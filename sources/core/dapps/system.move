@@ -1,18 +1,11 @@
 module dubhe::dapps_system {
     use std::ascii::String;
     use std::ascii;
-    use std::type_name;
     use dubhe::root_schema::Root;
-    use dubhe::root_system;
-    use sui::address;
     use dubhe::dapp_metadata;
     use sui::clock::Clock;
     use dubhe::dapps_schema::Dapps;
-
-    public fun current_package_id<T>(): address {
-        let dapp_package_id_string = type_name::get<T>().get_address().into_bytes();
-        address::from_ascii_bytes(&dapp_package_id_string)
-    }
+    use dubhe::root_system;
 
     public entry fun register<UpgradeCap: key>(
         dapps: &mut Dapps,
@@ -79,15 +72,4 @@ module dubhe::dapps_system {
         assert!(dapps.borrow_metadata().contains_key(dapp_id), 0);
         dapps.borrow_mut_verified().remove(dapp_id);
     }
-
-    public fun ensure_admin<T: drop>(dapps: &Dapps, ctx: &TxContext) {
-        let dapp_id = current_package_id<T>();
-        assert!(dapps.borrow_admin().get(dapp_id) == ctx.sender(), 0);
-    }
-
-    public fun ensure_no_safe_mode<T: drop>(dapps: &Dapps) {
-        let dapp_id = current_package_id<T>();
-        assert!(!dapps.borrow_safe_mode().get(dapp_id), 0);
-    }
-
 }
