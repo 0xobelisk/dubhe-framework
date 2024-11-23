@@ -4,7 +4,7 @@ module dubhe::type_info {
     use sui::address;
     use std::type_name::TypeName;
 
-    public fun parse_type_name(type_name: TypeName): (address, String, String) {
+    public fun parse_type_name(type_name: TypeName): (address, String, String, String) {
         let pending_parse_str = type_name.into_string();
         let delimiter = string(b"::");
 
@@ -18,8 +18,12 @@ module dubhe::type_info {
         let module_delimiter_index = tail.index_of(&delimiter);
         let module_name = tail.substring(0, module_delimiter_index);
 
-        let struct_name = tail.substring(module_delimiter_index + 2, tail.length());
+        let struct_name_with_type = tail.substring(module_delimiter_index + 2, tail.length());
 
-        (package_id, module_name, struct_name)
+        let delimiter = string(b"<");
+        let struct_name_delimiter_index = struct_name_with_type.index_of(&delimiter);
+        let struct_name = struct_name_with_type.substring(0, struct_name_delimiter_index);
+
+        (package_id, module_name, struct_name, struct_name_with_type)
     }
 }

@@ -37,14 +37,29 @@ module dubhe::dapps_system {
         );
         dapps.borrow_mut_admin().set(dapp_package_id, ctx.sender());
         dapps.borrow_mut_version().set(dapp_package_id, 0);
-        dapps.borrow_mut_schemas().set(dapp_package_id, vector[]);
         dapps.borrow_mut_safe_mode().set(dapp_package_id, false);
+    }
+
+    public entry fun upgrade<T>(dapps: &mut Dapps, old_package_id: address, ctx: &mut TxContext) {
+        let new_package_id = current_package_id<T>();
+        assert!(!dapps.borrow_metadata().contains_key(new_package_id), 0);
+        assert!(dapps.borrow_metadata().contains_key(old_package_id), 0);
+
+        let admin = dapps.borrow_mut_admin().take(old_package_id);
+        assert!(admin == ctx.sender(), 0);
+        let metadata = dapps.borrow_mut_metadata().take(old_package_id);
+        let version = dapps.borrow_mut_version().take(old_package_id) + 1;
+        let safe_mode = dapps.borrow_mut_safe_mode().take(old_package_id);
+
+        dapps.borrow_mut_metadata().set(new_package_id, metadata);
+        dapps.borrow_mut_admin().set(new_package_id, admin);
+        dapps.borrow_mut_version().set(new_package_id, version);
+        dapps.borrow_mut_safe_mode().set(new_package_id, safe_mode);
     }
 
     public entry fun set_metadata(
         dapps: &mut Dapps,
         package_id: address,
-        clock: &Clock,
         name: String,
         description: String,
         icon_url: String,
@@ -53,20 +68,9 @@ module dubhe::dapps_system {
         ctx: &mut TxContext
     ) {
         assert!(dapps.borrow_admin().get(package_id) == ctx.sender(), 0);
-        let created_at = clock.timestamp_ms();
         assert!(dapps.borrow_metadata().contains_key(package_id), 0);
-        dapps.borrow_mut_metadata().mutate!(package_id, |metadata| {
-            metadata.set(name, description, icon_url, website_url, created_at, partners);
-        });
-    }
-
-    public entry fun add_schema<T>(dapps: &mut Dapps, package_id: address, ctx: &mut TxContext) {
-        assert!(dapps.borrow_admin().get(package_id) == ctx.sender(), 0);
-        let schema = type_name::get<T>().into_string();
-        assert!(!dapps.borrow_schemas().get(package_id).contains(&schema), 0);
-        dapps.borrow_mut_schemas().mutate!(package_id, |schemas| {
-            schemas.push_back(schema);
-        });
+        let created_at = dapps.borrow_mut_metadata().take(package_id).get_created_at();
+        dapps.borrow_mut_metadata().set(package_id, dapp_metadata::new(name, description, icon_url, website_url, created_at, partners));
     }
 
     public entry fun transfer_ownership(
