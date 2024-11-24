@@ -12,4 +12,8 @@ module dubhe::storage_migrate {
     public fun borrow_mut_field<StorageType: store>(uid: &mut UID, field_name: vector<u8>): &mut StorageType {
         df::borrow_mut(uid, field_name)
     }
+
+    public fun field_exists(uid: &UID, field_name: vector<u8>): bool {
+        df::exists_(uid, field_name)
+    }
 }
