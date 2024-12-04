@@ -6,9 +6,11 @@ module dubhe::dapps_tests {
     use std::ascii::string;
     use std::debug;
     use sui::clock;
+    use sui::coin;
     use sui::test_scenario;
     use sui::package;
     use sui::package::UpgradeCap;
+    use sui::sui::SUI;
 
     public struct DappKey has drop {}
 
@@ -26,6 +28,8 @@ module dubhe::dapps_tests {
         let upgrade_cap = package::test_publish(@0x42.to_id(), scenario.ctx());
         debug::print(&object::id_address<UpgradeCap>(&upgrade_cap));
 
+        let coin = coin::mint_for_testing<SUI>(1_000_000_000, test_scenario::ctx(&mut scenario));
+
         let clock = clock::create_for_testing(test_scenario::ctx(&mut scenario));
         dapps_system::register<UpgradeCap>(
             &mut dapps,
@@ -33,16 +37,26 @@ module dubhe::dapps_tests {
             string(b"DappKey"),
             string(b"DappKey"),
             &clock,
-            test_scenario::ctx(&mut scenario)
+            coin,
+            test_scenario::ctx(&mut scenario),
         );
 
         test_scenario::next_tx(&mut scenario,@0xA);
 
         let dapp_id = object::id_address<UpgradeCap>(&upgrade_cap);
-        assert!(dapps.borrow_version().get(dapp_id) == 0, 0);
+        assert!(dapps.borrow_version().get(dapp_id) == 1, 0);
         assert!(dapps.borrow_metadata().contains_key(dapp_id));
         assert!(dapps.borrow_admin().get(dapp_id) == test_scenario::ctx(&mut scenario).sender(), 0);
         assert!(dapps.borrow_safe_mode().get(dapp_id) == false, 0);
+
+
+        dapps_system::unregister(&mut dapps, &upgrade_cap, test_scenario::ctx(&mut scenario));
+        test_scenario::next_tx(&mut scenario,@0xA);
+
+        assert!(!dapps.borrow_version().contains_key(dapp_id));
+        assert!(!dapps.borrow_metadata().contains_key(dapp_id));
+        assert!(!dapps.borrow_admin().contains_key(dapp_id));
+        assert!(!dapps.borrow_safe_mode().contains_key(dapp_id));
 
         clock::destroy_for_testing(clock);
         test_scenario::return_shared<Dapps>(dapps);

@@ -1,5 +1,10 @@
 module dubhe::dapps_schema {
     use std::ascii::String;
+    use dubhe::storage_value;
+    use sui::balance::Balance;
+    use sui::sui::SUI;
+    use sui::balance;
+    use dubhe::storage_value::StorageValue;
     use dubhe::storage_map;
     use sui::transfer::public_share_object;
     use dubhe::dapp_metadata::DappMetadata;
@@ -12,7 +17,9 @@ module dubhe::dapps_schema {
         metadata: StorageMap<address, DappMetadata>,
         schemas: StorageMap<address, vector<String>>,
         safe_mode: StorageMap<address, bool>,
-        verified: StorageMap<address, bool>
+        verified: StorageMap<address, bool>,
+        reserved: StorageValue<Balance<SUI>>,
+        reserve_amount: StorageValue<u64>,
     }
 
 
@@ -40,6 +47,14 @@ module dubhe::dapps_schema {
         &mut self.verified
     }
 
+    public(package) fun borrow_mut_reserved(self: &mut Dapps): &mut StorageValue<Balance<SUI>> {
+        &mut self.reserved
+    }
+
+    public(package) fun borrow_mut_reserve_amount(self: &mut Dapps): &mut StorageValue<u64> {
+        &mut self.reserve_amount
+    }
+
     public fun borrow_admin(self: &Dapps): &StorageMap<address, address> {
         &self.admin
     }
@@ -64,7 +79,20 @@ module dubhe::dapps_schema {
         &self.verified
     }
 
+    public fun borrow_reserved(self: &mut Dapps): &StorageValue<Balance<SUI>> {
+        &self.reserved
+    }
+
+    public fun borrow_reserve_amount(self: &mut Dapps): &StorageValue<u64> {
+        &self.reserve_amount
+    }
+
     fun init(ctx: &mut TxContext) {
+        let mut reserved = storage_value::new();
+        reserved.put(balance::zero());
+
+        let mut reserve_amount = storage_value::new();
+        reserve_amount.put(1_000_000_000);
         public_share_object(Dapps {
             id: object::new(ctx),
             admin: storage_map::new(),
@@ -73,6 +101,8 @@ module dubhe::dapps_schema {
             schemas: storage_map::new(),
             safe_mode: storage_map::new(),
             verified: storage_map::new(),
+            reserved,
+            reserve_amount
         });
     }
 

@@ -4,6 +4,9 @@ module dubhe::dapps_system {
     use dubhe::root_schema::Root;
     use dubhe::dapp_metadata;
     use sui::clock::Clock;
+    use sui::coin;
+    use sui::coin::Coin;
+    use sui::sui::SUI;
     use dubhe::dapps_schema::Dapps;
     use dubhe::root_system;
 
@@ -13,9 +16,9 @@ module dubhe::dapps_system {
         name: String,
         description: String,
         clock: &Clock,
+        coin: Coin<SUI>,
         ctx: &mut TxContext
     ) {
-        
         let dapp_id = object::id_address<UpgradeCap>(upgrade_cap);
         assert!(!dapps.borrow_metadata().contains_key(dapp_id), 0);
 
@@ -31,8 +34,31 @@ module dubhe::dapps_system {
             )
         );
         dapps.borrow_mut_admin().set(dapp_id, ctx.sender());
-        dapps.borrow_mut_version().set(dapp_id, 0);
+        dapps.borrow_mut_version().set(dapp_id, 1);
         dapps.borrow_mut_safe_mode().set(dapp_id, false);
+
+        let reserve_amount = dapps.borrow_reserve_amount().get();
+        assert!(coin.value() == reserve_amount, 0);
+        dapps.borrow_mut_reserved().borrow_mut().join(coin.into_balance());
+    }
+
+    public entry fun unregister<UpgradeCap: key>(
+        dapps: &mut Dapps,
+        upgrade_cap: &UpgradeCap,
+        ctx: &mut TxContext
+    ) {
+        let dapp_id = object::id_address<UpgradeCap>(upgrade_cap);
+        assert!(dapps.borrow_metadata().contains_key(dapp_id), 0);
+
+        dapps.borrow_mut_metadata().remove(dapp_id);
+        dapps.borrow_mut_admin().remove(dapp_id);
+        dapps.borrow_mut_version().remove(dapp_id);
+        dapps.borrow_mut_safe_mode().remove(dapp_id);
+
+        let reserve_amount = dapps.borrow_reserve_amount().get();
+        let reserve_amount = dapps.borrow_mut_reserved().borrow_mut().split(reserve_amount);
+        let reserve_amount = coin::from_balance(reserve_amount, ctx);
+        transfer::public_transfer(reserve_amount, ctx.sender());
     }
 
     public entry fun set_metadata<UpgradeCap: key>(
