@@ -1,6 +1,7 @@
 module dubhe::type_info {
     use std::ascii::String;
     use std::ascii::string;
+    use std::type_name;
     use sui::address;
     use std::type_name::TypeName;
 
@@ -25,5 +26,11 @@ module dubhe::type_info {
         let struct_name = struct_name_with_type.substring(0, struct_name_delimiter_index);
 
         (package_id, module_name, struct_name, struct_name_with_type)
+    }
+
+    public fun current_package_id<T>(): address {
+        let type_name = type_name::get<T>();
+        let (package_id, _, _, _) = parse_type_name(type_name);
+        package_id
     }
 }

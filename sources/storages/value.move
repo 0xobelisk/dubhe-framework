@@ -51,7 +51,7 @@ module dubhe::storage_value {
         value
     }
 
-    /// Set the `value` of the `StorageValue`.
+    /// Put the `value` of the `StorageValue`.
     public fun put<V: store>(self: &mut StorageValue<V>, value: V) {
         assert!(!self.contains(), EValueAlreadyExist);
         self.contents.push_back(Entry { value });
