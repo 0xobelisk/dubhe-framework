@@ -1,8 +1,8 @@
 module dubhe::storage_migrate {
     use sui::dynamic_field as df;
 
-    public fun add_field<StorageType: store>(uid: &mut UID, field_name: vector<u8>, storagr_type: StorageType) {
-        df::add(uid, field_name, storagr_type);
+    public fun add_field<StorageType: store>(uid: &mut UID, field_name: vector<u8>, storagre_type: StorageType) {
+        df::add(uid, field_name, storagre_type);
     }
 
     public fun borrow_field<StorageType: store>(uid: &UID, field_name: vector<u8>): &StorageType {
