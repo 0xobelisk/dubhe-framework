@@ -33,3 +33,9 @@ original-published-id = "0xc8082e6b4613df351bfe8e8e024e1882fba0c60bfc59aa2ba9f43
 latest-published-id = "0x89e3192c51b774ded1aa6986cb35cff36438e398ea6b92dc7f1b689cb92580de"
 published-version = "2"
 
+[env.mainnet]
+chain-id = "35834a8a"
+original-published-id = "0x1ec50128fe12af3bec330f7be7297e01386701d803b6616e01dcd396bdac240c"
+latest-published-id = "0x1ec50128fe12af3bec330f7be7297e01386701d803b6616e01dcd396bdac240c"
+published-version = "1"
+
