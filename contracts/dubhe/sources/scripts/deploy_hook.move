@@ -7,6 +7,49 @@
   module dubhe::dubhe_deploy_hook {
 
   use dubhe::dubhe_schema::Schema;
+  use dubhe::custom_schema;
+  use std::ascii::String;
+  use std::ascii::string;
+  use sui::sui::SUI;
+  use dubhe::dubhe::DUBHE;
+  use dubhe::dubhe_bridge_config;
+  use dubhe::dubhe_wrapper_system;
 
-  public(package) fun run(_schema: &mut Schema, _ctx: &mut TxContext) {}
+  public(package) fun run(schema: &mut Schema, ctx: &mut TxContext) {
+    custom_schema::add_to_schema(schema, ctx);
+
+    schema.next_asset_id().set(0);
+    // 0.03% swap fee
+    schema.swap_fee().set(3);
+    // 0.01% lp fee
+    schema.lp_fee().set(1);
+    schema.fee_to().set(ctx.sender());
+    schema.max_swap_path_len().set(6);
+    schema.min_liquidity().set(100);
+
+    // bridge
+    // to Dubhe_OS_Network => 1 DUBHE
+    schema.bridge().set(string(b"Dubhe OS"), dubhe_bridge_config::new(50000000, 2000000, true));
+    // to Aptos_Network => 1 DUBHE
+    schema.bridge().set(string(b"Aptos"), dubhe_bridge_config::new(50000000, 2000000, true));
+
+    dubhe_wrapper_system::do_register<SUI>(
+      schema,
+      string(b"Wrapped SUI"),
+      string(b"wSUI"),
+      string(b"Wrapped SUI"),
+    9,
+    string(b"https://cryptologos.cc/logos/sui-sui-logo.png?v=040"),
+    string(b"")
+    );
+    dubhe_wrapper_system::do_register<DUBHE>(
+      schema,
+    string(b"Wrapped DUBHE"),
+      string(b"wDUBHE"),
+      string(b"Wrapped DUBHE"),
+      7,
+      string(b"https://raw.githubusercontent.com/0xobelisk/dubhe/refs/heads/main/assets/logo.jpg"),
+      string(b"")
+    );
+  }
 }
