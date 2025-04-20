@@ -18,9 +18,7 @@ module dubhe::dubhe_dapp_system {
 
   use dubhe::storage::add_field;
 
-  use dubhe::storage_value;
-
-  use dubhe::storage_value::StorageValue;
+  use dubhe::storage_value_internal::{Self, StorageValue};
 
   public entry fun set_metadata(
     schema: &mut Schema,
@@ -78,12 +76,12 @@ module dubhe::dubhe_dapp_system {
     clock: &Clock,
     ctx: &mut TxContext,
   ) {
-    add_field<StorageValue<address>>(schema.id(), b"dapp__admin", storage_value::new(b"dapp__admin", ctx));
-    add_field<StorageValue<address>>(schema.id(), b"dapp__package_id", storage_value::new(b"dapp__package_id", ctx));
-    add_field<StorageValue<u32>>(schema.id(), b"dapp__version", storage_value::new(b"dapp__version", ctx));
-    add_field<StorageValue<DappMetadata>>(schema.id(), b"dapp__metadata", storage_value::new(b"dapp__metadata", ctx));
-    add_field<StorageValue<bool>>(schema.id(), b"dapp__safe_mode", storage_value::new(b"dapp__safe_mode", ctx));
-    add_field<StorageValue<vector<address>>>(schema.id(), b"dapp__authorised_schemas", storage_value::new(b"dapp__authorised_schemas", ctx));
+    add_field<StorageValue<address>>(schema.id(), b"dapp__admin", storage_value_internal::new(b"dapp__admin", ctx));
+    add_field<StorageValue<address>>(schema.id(), b"dapp__package_id", storage_value_internal::new(b"dapp__package_id", ctx));
+    add_field<StorageValue<u32>>(schema.id(), b"dapp__version", storage_value_internal::new(b"dapp__version", ctx));
+    add_field<StorageValue<DappMetadata>>(schema.id(), b"dapp__metadata", storage_value_internal::new(b"dapp__metadata", ctx));
+    add_field<StorageValue<bool>>(schema.id(), b"dapp__safe_mode", storage_value_internal::new(b"dapp__safe_mode", ctx));
+    add_field<StorageValue<vector<address>>>(schema.id(), b"dapp__authorised_schemas", storage_value_internal::new(b"dapp__authorised_schemas", ctx));
     schema.dapp__metadata().set(
             dubhe_dapp_metadata::new(
                 name,

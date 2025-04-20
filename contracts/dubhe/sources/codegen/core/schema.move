@@ -16,11 +16,11 @@
 
   use dubhe::storage;
 
-  use dubhe::storage_value::{Self, StorageValue};
+  use dubhe::storage_value_internal::{Self, StorageValue};
 
-  use dubhe::storage_map::{Self, StorageMap};
+  use dubhe::storage_map_internal::{Self, StorageMap};
 
-  use dubhe::storage_double_map::{Self, StorageDoubleMap};
+  use dubhe::storage_double_map_internal::{Self, StorageDoubleMap};
 
   use sui::dynamic_field as df;
 
@@ -182,16 +182,16 @@
 
   public(package) fun create(ctx: &mut TxContext): Schema {
     let mut id = object::new(ctx);
-    storage::add_field<StorageValue<u256>>(&mut id, b"next_asset_id", storage_value::new(b"next_asset_id", ctx));
-    storage::add_field<StorageMap<u256, AssetMetadata>>(&mut id, b"asset_metadata", storage_map::new(b"asset_metadata", ctx));
-    storage::add_field<StorageDoubleMap<u256, address, Account>>(&mut id, b"account", storage_double_map::new(b"account", ctx));
-    storage::add_field<StorageValue<u256>>(&mut id, b"swap_fee", storage_value::new(b"swap_fee", ctx));
-    storage::add_field<StorageValue<u256>>(&mut id, b"lp_fee", storage_value::new(b"lp_fee", ctx));
-    storage::add_field<StorageValue<address>>(&mut id, b"fee_to", storage_value::new(b"fee_to", ctx));
-    storage::add_field<StorageValue<u64>>(&mut id, b"max_swap_path_len", storage_value::new(b"max_swap_path_len", ctx));
-    storage::add_field<StorageValue<u256>>(&mut id, b"min_liquidity", storage_value::new(b"min_liquidity", ctx));
-    storage::add_field<StorageDoubleMap<u256, u256, Pool>>(&mut id, b"pools", storage_double_map::new(b"pools", ctx));
-    storage::add_field<StorageMap<String, BridgeConfig>>(&mut id, b"bridge", storage_map::new(b"bridge", ctx));
+    storage::add_field<StorageValue<u256>>(&mut id, b"next_asset_id", storage_value_internal::new(b"next_asset_id", ctx));
+    storage::add_field<StorageMap<u256, AssetMetadata>>(&mut id, b"asset_metadata", storage_map_internal::new(b"asset_metadata", ctx));
+    storage::add_field<StorageDoubleMap<u256, address, Account>>(&mut id, b"account", storage_double_map_internal::new(b"account", ctx));
+    storage::add_field<StorageValue<u256>>(&mut id, b"swap_fee", storage_value_internal::new(b"swap_fee", ctx));
+    storage::add_field<StorageValue<u256>>(&mut id, b"lp_fee", storage_value_internal::new(b"lp_fee", ctx));
+    storage::add_field<StorageValue<address>>(&mut id, b"fee_to", storage_value_internal::new(b"fee_to", ctx));
+    storage::add_field<StorageValue<u64>>(&mut id, b"max_swap_path_len", storage_value_internal::new(b"max_swap_path_len", ctx));
+    storage::add_field<StorageValue<u256>>(&mut id, b"min_liquidity", storage_value_internal::new(b"min_liquidity", ctx));
+    storage::add_field<StorageDoubleMap<u256, u256, Pool>>(&mut id, b"pools", storage_double_map_internal::new(b"pools", ctx));
+    storage::add_field<StorageMap<String, BridgeConfig>>(&mut id, b"bridge", storage_map_internal::new(b"bridge", ctx));
     Schema { id }
   }
 
