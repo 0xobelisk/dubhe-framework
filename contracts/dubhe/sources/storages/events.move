@@ -40,12 +40,12 @@ public fun storage_value_remove<V: copy + drop>(name: String) {
     emit_remove_record<V, V>(name, option::none(), option::none());
 }
 
-public fun storage_map_set<K1: copy + drop, K2: copy + drop, V: copy + drop>(name: String, key1: K1, key2: K2, value: V) {
-    emit_set_record<K1, K2, V>(name, option::some(key1), option::some(key2), option::some(value));
+public fun storage_map_set<K1: copy + drop, V: copy + drop>(name: String, key1: K1, value: V) {
+    emit_set_record<K1, K1, V>(name, option::some(key1), option::none(), option::some(value));
 }
 
-public fun storage_map_remove<K1: copy + drop, K2: copy + drop>(name: String, key1: K1, key2: K2) {
-    emit_remove_record<K1, K2>(name, option::some(key1), option::some(key2));
+public fun storage_map_remove<K1: copy + drop>(name: String, key1: K1) {
+    emit_remove_record<K1, K1>(name, option::some(key1), option::none());
 }
 
 public fun storage_double_map_set<K1: copy + drop, K2: copy + drop, V: copy + drop>(name: String, key1: K1, key2: K2, value: V) {

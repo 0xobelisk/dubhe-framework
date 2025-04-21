@@ -6,42 +6,15 @@ module dubhe::dubhe_wrapper_system {
     use sui::balance;
     use sui::balance::Balance;
     use sui::coin;
-    use sui::coin::{Coin, CoinMetadata};
+    use sui::coin::{Coin};
     use dubhe::custom_schema::WrapperCoin;
     use dubhe::custom_schema;
     use dubhe::dubhe_schema::Schema;
     use std::type_name;
-    use dubhe::dubhe_errors::{overflows_error, no_permission_error};
+    use dubhe::dubhe_errors::{overflows_error};
     use dubhe::dubhe_asset_type;
 
-    public entry fun force_register<T>(schema: &mut Schema, name: String, symbol: String, description: String, decimals: u8, url: String, info: String, ctx: &mut TxContext) {
-        // no_permission_error(schema.dapp__admin()[] == ctx.sender());
-        let asset_id = dubhe_assets_functions::do_create(schema, false, false, true, dubhe_asset_type::new_wrapped(),@0x0, name, symbol, description, decimals, url, info);
-        custom_schema::wrapper_assets(schema).add<WrapperCoin<T>, u256>(custom_schema::new(), asset_id);
-        let coin_type = type_name::get<T>().into_string();
-        dubhe::storage_event::emit_set_record<String, String, u256>(string(b"wrapper_assets"), option::some(coin_type), option::none(), option::some(asset_id));
-        custom_schema::wrapper_pools(schema).add<u256, Balance<T>>(asset_id, balance::zero<T>());
-        dubhe::storage_event::emit_set_record<u256, u256, u64>(string(b"wrapper_pools"), option::some(asset_id), option::none(), option::some(0));
-    }
 
-    public entry fun register<T>(schema: &mut Schema, metadata: &CoinMetadata<T>): u256 {
-        let name = metadata.get_name().to_ascii();
-        let decimals = metadata.get_decimals();
-        let symbol = metadata.get_symbol();
-        let description = metadata.get_description().to_ascii();
-        let icon_url = if (metadata.get_icon_url().is_some()) {
-            metadata.get_icon_url().borrow().inner_url()
-        } else {
-            string(b"")
-        };
-        let asset_id = dubhe_assets_functions::do_create(schema, false, false, true, dubhe_asset_type::new_wrapped(), @0x0, name, symbol, description, decimals, icon_url, string(b""));
-        custom_schema::wrapper_assets(schema).add<WrapperCoin<T>, u256>(custom_schema::new(), asset_id);
-        let coin_type = type_name::get<T>().into_string();
-        dubhe::storage_event::emit_set_record<String, String, u256>(string(b"wrapper_assets"), option::some(coin_type), option::none(), option::some(asset_id));
-        custom_schema::wrapper_pools(schema).add<u256, Balance<T>>(asset_id, balance::zero<T>());
-        dubhe::storage_event::emit_set_record<u256, u256, u64>(string(b"wrapper_pools"), option::some(asset_id), option::none(), option::some(0));
-        asset_id
-    }
 
     public entry fun wrap<T>(schema: &mut Schema, coin: Coin<T>, beneficiary: address): u256 {
         let wrapper_coin = custom_schema::new<T>();
@@ -50,7 +23,7 @@ module dubhe::dubhe_wrapper_system {
         let amount = coin.value();
         let pool_balance = custom_schema::wrapper_pools(schema).borrow_mut<u256, Balance<T>>(asset_id);
         pool_balance.join(coin.into_balance());
-        dubhe::storage_event::emit_set_record<u256, u256, u64>(string(b"wrapper_pools"), option::some(asset_id), option::none(), option::some(pool_balance.value()));
+        dubhe::storage_event::storage_map_set(string(b"wrapper_pools"), asset_id, pool_balance.value());
         dubhe_assets_functions::do_mint(schema, asset_id, beneficiary, amount as u256);
         amount as u256
     }
@@ -64,9 +37,9 @@ module dubhe::dubhe_wrapper_system {
         let asset_id = dubhe_assets_functions::do_create(schema, false, false, true, dubhe_asset_type::new_wrapped(),@0x0, name, symbol, description, decimals, url, info);
         custom_schema::wrapper_assets(schema).add<WrapperCoin<T>, u256>(custom_schema::new(), asset_id);
         let coin_type = type_name::get<T>().into_string();
-        dubhe::storage_event::emit_set_record<String, String, u256>(string(b"wrapper_assets"), option::some(coin_type), option::none(), option::some(asset_id));
+        dubhe::storage_event::storage_map_set(string(b"wrapper_assets"), coin_type, asset_id);
         custom_schema::wrapper_pools(schema).add<u256, Balance<T>>(asset_id, balance::zero<T>());
-        dubhe::storage_event::emit_set_record<u256, u256, u64>(string(b"wrapper_pools"), option::some(asset_id), option::none(), option::some(0));
+        dubhe::storage_event::storage_map_set(string(b"wrapper_pools"), asset_id, 0);
         asset_id
     }
 
@@ -78,7 +51,7 @@ module dubhe::dubhe_wrapper_system {
         dubhe_assets_functions::do_burn(schema, asset_id, ctx.sender(), amount);
         let pool_balance = custom_schema::wrapper_pools(schema).borrow_mut<u256, Balance<T>>(asset_id);
         let balance = pool_balance.split(amount as u64);
-        dubhe::storage_event::emit_set_record<u256, u256, u64>(string(b"wrapper_pools"), option::some(asset_id), option::none(), option::some(pool_balance.value()));
+        dubhe::storage_event::storage_map_set(string(b"wrapper_pools"), asset_id, pool_balance.value());
         coin::from_balance<T>(balance, ctx)
     }
 }

@@ -18,8 +18,8 @@ module dubhe::storage_tests {
 
         let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
 
-        dubhe::dubhe_dapp_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
-        dubhe::dubhe_dapp_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_gov_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_gov_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
 
         let dubhe_asset_id = 1;
         let dapp_key = dubhe::dubhe_dapp_key::new();
@@ -76,8 +76,8 @@ module dubhe::storage_tests {
 
         let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
 
-        dubhe::dubhe_dapp_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
-        dubhe::dubhe_dapp_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_gov_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_gov_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
 
         let dubhe_asset_id = 1;
         let dapp_key = dubhe::dubhe_dapp_key::new();
@@ -147,8 +147,8 @@ module dubhe::storage_tests {
 
         let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
 
-        dubhe::dubhe_dapp_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
-        dubhe::dubhe_dapp_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_gov_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_gov_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
 
         let dubhe_asset_id = 1;
         let dapp_key = dubhe::dubhe_dapp_key::new();

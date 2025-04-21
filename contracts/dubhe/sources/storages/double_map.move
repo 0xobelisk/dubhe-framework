@@ -3,7 +3,6 @@ module dubhe::storage_double_map;
 use std::ascii::{String, string};
 use sui::dynamic_field as field;
 use dubhe::storage_event;
-use std::option::some;
 use dubhe::dubhe_schema::Schema;
 use dubhe::dubhe_dapp_key::DappKey;
 
@@ -42,7 +41,7 @@ public fun set<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop 
         field::add(&mut table.id, k, v);
         table.size = table.size + 1;
     };
-    storage_event::emit_set_record<K1, K2, V>(table.name, some(k1), some(k2), some(v));
+    storage_event::storage_double_map_set<K1, K2, V>(table.name, k1, k2, v);
 }
 
 /// Immutable borrows the value associated with the key in the table `table: &Table<K, V>`.
@@ -71,7 +70,7 @@ public fun remove<K1: copy + drop + store, K2: copy + drop + store, V: copy + dr
         let k = Entry { key1: k1, key2: k2 };
         field::remove<Entry<K1, K2>, V>(&mut table.id, k);
         table.size = table.size - 1;
-        storage_event::emit_remove_record<K1, K2>(table.name, some(k1), some(k2));
+        storage_event::storage_double_map_remove<K1, K2>(table.name, k1, k2);
     }
 }
 
@@ -83,7 +82,7 @@ public fun try_remove<K1: copy + drop + store, K2: copy + drop + store, V: copy 
         let k = Entry { key1: k1, key2: k2 };
         let v = field::remove<Entry<K1, K2>, V>(&mut table.id, k);
         table.size = table.size - 1;
-        storage_event::emit_remove_record<K1, K2>(table.name, some(k1), some(k2));
+        storage_event::storage_double_map_remove<K1, K2>(table.name, k1, k2);
         option::some(v)
     } else {
         option::none()

@@ -3,8 +3,6 @@ module dubhe::storage_value;
 use std::ascii::{String, string};
 use sui::dynamic_field as field;
 use dubhe::storage_event;
-use std::option::some;
-use std::option::none;
 use dubhe::dubhe_schema::Schema;
 
 public struct StorageValue<phantom V: copy + drop + store> has key, store {
@@ -57,7 +55,7 @@ public fun get<V: copy + drop + store>(table: &StorageValue<V>): &V {
 /// that key `k: K`.
 public fun remove<V: copy + drop + store>(table: &mut StorageValue<V>): V {
     let v = field::remove<u8, V>(&mut table.id, 0);
-    storage_event::emit_remove_record<u8, u8>(table.name, none(), none());
+    storage_event::storage_value_remove<V>(table.name);
     v
 }
 
@@ -67,7 +65,7 @@ public fun remove<V: copy + drop + store>(table: &mut StorageValue<V>): V {
 public fun try_remove<V: copy + drop + store>(table: &mut StorageValue<V>): Option<V> {
     if (table.contains()) {
         let v = field::remove<u8, V>(&mut table.id, 0);
-        storage_event::emit_remove_record<u8, u8>(table.name, none(), none());
+        storage_event::storage_value_remove<V>(table.name);
         option::some(v)
     } else {
         option::none()

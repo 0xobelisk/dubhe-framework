@@ -115,6 +115,10 @@ export const dubheConfig = {
         chain_not_supported: "Chain not supported",
         bridge_not_opened: "Bridge is not opened",
         below_min_bridge_amount: "Amount is below minimum",
+        not_dapp_admin: "Not dapp admin",
+        not_dapp_latest_version: "Not dapp latest version",
+        not_dapp_pausable: "Dapp is not pausable",
+        dapp_already_exists: "Dapp already exists",
     },
     events: {
         asset_created: {

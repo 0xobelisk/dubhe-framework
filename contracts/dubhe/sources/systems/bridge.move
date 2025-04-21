@@ -5,21 +5,12 @@ module dubhe::dubhe_bridge_system {
     use sui::coin::TreasuryCap;
     use sui::coin;
     use dubhe::dubhe_wrapper_system;
-    use dubhe::dubhe_bridge_config;
     use dubhe::dubhe_schema::Schema;
     use dubhe::dubhe_errors::{
         asset_not_found_error, overflows_error, chain_not_supported_error, bridge_not_opened_error, below_min_amount_error
     };
     use dubhe::dubhe_assets_functions;
     use dubhe::dubhe_events::{ bridge_deposit_event, bridge_withdraw_event };
-    use dubhe::dubhe_dapp_system::ensure_dapp_admin_sign;
-    use dubhe::dubhe_dapp_key::DappKey;
-    // use dubhe::dubhe_dapp_system::ensure_has_authority;
-
-    public entry fun set_bridge(schema: &mut Schema, chain: String, min_amount: u256,  fee: u256, opened: bool, ctx: &TxContext) {
-        // ensure_dapp_admin_sign<DappKey>(schema, ctx);
-        schema.bridge().set(chain, dubhe_bridge_config::new(min_amount, fee, opened));
-    }
 
     public entry fun withdraw(schema: &mut Schema, asset_id: u256, to: address, to_chain: String, amount: u256, ctx: &mut TxContext) {
         asset_not_found_error(schema.asset_metadata().contains(asset_id));

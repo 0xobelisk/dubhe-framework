@@ -229,4 +229,36 @@
   public fun below_min_bridge_amount_error(condition: bool) {
     assert!(condition, BELOW_MIN_BRIDGE_AMOUNT)
   }
+
+  #[error]
+
+  const NOT_DAPP_ADMIN: vector<u8> = b"Not dapp admin";
+
+  public fun not_dapp_admin_error(condition: bool) {
+    assert!(condition, NOT_DAPP_ADMIN)
+  }
+
+  #[error]
+
+  const NOT_DAPP_LATEST_VERSION: vector<u8> = b"Not dapp latest version";
+
+  public fun not_dapp_latest_version_error(condition: bool) {
+    assert!(condition, NOT_DAPP_LATEST_VERSION)
+  }
+
+  #[error]
+
+  const NOT_DAPP_PAUSABLE: vector<u8> = b"Dapp is not pausable";
+
+  public fun not_dapp_pausable_error(condition: bool) {
+    assert!(condition, NOT_DAPP_PAUSABLE)
+  }
+
+  #[error]
+
+  const DAPP_ALREADY_EXISTS: vector<u8> = b"Dapp already exists";
+
+  public fun dapp_already_exists_error(condition: bool) {
+    assert!(condition, DAPP_ALREADY_EXISTS)
+  }
 }
