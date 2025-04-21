@@ -19,9 +19,7 @@ module dubhe::assets_tests {
     public fun assets_create() {
         let sender = @0xA;
         let mut scenario = test_scenario::begin(sender);
-        deploy_dapp_for_testing(&mut scenario);
-
-        let mut schema = test_scenario::take_shared<Schema>(&scenario);
+        let mut schema = deploy_dapp_for_testing(&mut scenario);
 
         let name = ascii::string(b"Obelisk Coin");
         let symbol = ascii::string(b"OBJ");

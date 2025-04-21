@@ -4,7 +4,6 @@ module dubhe::storage_tests {
     use dubhe::storage_map;
     use sui::test_scenario;
     use dubhe::storage_value;
-    use dubhe::dubhe_schema::Schema as DubheSchema;
     use dubhe::dubhe_dapp_key::DappKey;
     public struct TestValue has drop, copy, store {
         value: u64,
@@ -14,9 +13,7 @@ module dubhe::storage_tests {
     public fun test_value() {
         let deployer = @0x0001;
         let mut scenario = test_scenario::begin(deployer);
-        dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
-
-        let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
+        let mut schema = dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
 
         dubhe::dubhe_gov_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
         dubhe::dubhe_gov_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
@@ -72,9 +69,7 @@ module dubhe::storage_tests {
     public fun test_map() {
         let deployer = @0x0001;
         let mut scenario = test_scenario::begin(deployer);
-        dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
-
-        let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
+        let mut schema = dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
 
         dubhe::dubhe_gov_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
         dubhe::dubhe_gov_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
@@ -143,9 +138,7 @@ module dubhe::storage_tests {
     public fun test_double_map() {
        let deployer = @0x0001;
         let mut scenario = test_scenario::begin(deployer);
-        dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
-
-        let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
+        let mut schema = dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
 
         dubhe::dubhe_gov_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
         dubhe::dubhe_gov_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));

@@ -15,9 +15,7 @@ module dubhe::bridge_tests {
     public fun bridge() {
         let sender = @0xA;
         let mut scenario = test_scenario::begin(sender);
-        deploy_dapp_for_testing(&mut scenario);
-
-        let mut schema = test_scenario::take_shared<Schema>(&scenario);
+        let mut schema = deploy_dapp_for_testing(&mut scenario);
         schema.fee_to().set(@0xB);
 
         let ctx = test_scenario::ctx(&mut scenario);
