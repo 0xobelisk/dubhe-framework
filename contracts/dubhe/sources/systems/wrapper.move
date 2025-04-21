@@ -15,7 +15,7 @@ module dubhe::dubhe_wrapper_system {
     use dubhe::dubhe_asset_type;
 
     public entry fun force_register<T>(schema: &mut Schema, name: String, symbol: String, description: String, decimals: u8, url: String, info: String, ctx: &mut TxContext) {
-        no_permission_error(schema.dapp__admin()[] == ctx.sender());
+        // no_permission_error(schema.dapp__admin()[] == ctx.sender());
         let asset_id = dubhe_assets_functions::do_create(schema, false, false, true, dubhe_asset_type::new_wrapped(),@0x0, name, symbol, description, decimals, url, info);
         custom_schema::wrapper_assets(schema).add<WrapperCoin<T>, u256>(custom_schema::new(), asset_id);
         let coin_type = type_name::get<T>().into_string();

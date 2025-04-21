@@ -148,7 +148,12 @@ module dubhe::dubhe_assets_functions {
 
     public(package) fun assert_asset_is_package_asset<DappKey: drop>(schema: &mut Schema, asset_id: u256) {
         if(!is_package_asset<DappKey>(schema, asset_id)) {
-            asset_not_found_error(true);
+            asset_not_found_error(false);
         }
+    }
+
+    public(package) fun transfer_dubhe_internal(schema: &mut Schema, from: address, to: address, amount: u256) {
+        let dubhe_asset_id = 1;
+        do_transfer(schema, dubhe_asset_id, from, to, amount);
     }
 }

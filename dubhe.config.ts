@@ -50,7 +50,15 @@ export const dubheConfig = {
             min_amount: 'u256',
             fee: 'u256',
             opened: 'bool',
-        }
+        },
+        DappMetadata: {
+            name: 'String',
+            description: 'String',
+            cover_url: 'vector<String>',
+            website_url: 'String',
+            created_at: 'u64',
+            partners: 'vector<String>',
+        },
     },
     schemas: {
         next_asset_id: storage('u256'),
@@ -62,7 +70,12 @@ export const dubheConfig = {
         max_swap_path_len: storage('u64'),
         min_liquidity: storage('u256'),
         pools: storage('u256', 'u256', 'Pool'),
-        bridge: storage('String', 'BridgeConfig')
+        bridge: storage('String', 'BridgeConfig'),
+        dapp_admin: storage('address', 'address'),
+        dapp_version: storage('address', 'u32'),
+        dapp_pausable: storage('address', 'bool'),
+        dapp_metadata: storage('address', 'DappMetadata'),
+        dapp_package_id: storage('address', 'address'),
     },
     errors: {
         asset_not_found: "Asset not found",

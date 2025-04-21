@@ -14,7 +14,7 @@
   use dubhe::dubhe::DUBHE;
   use dubhe::dubhe_bridge_config;
   use dubhe::dubhe_wrapper_system;
-
+  use dubhe::dubhe_dapp_key::DappKey;
   public(package) fun run(schema: &mut Schema, ctx: &mut TxContext) {
     custom_schema::add_to_schema(schema, ctx);
 
@@ -42,7 +42,7 @@
     string(b"https://cryptologos.cc/logos/sui-sui-logo.png?v=040"),
     string(b"")
     );
-    dubhe_wrapper_system::do_register<DUBHE>(
+    let asset_id = dubhe_wrapper_system::do_register<DUBHE>(
       schema,
     string(b"Wrapped DUBHE"),
       string(b"wDUBHE"),
@@ -51,5 +51,7 @@
       string(b"https://raw.githubusercontent.com/0xobelisk/dubhe/refs/heads/main/assets/logo.jpg"),
       string(b"")
     );
+
+    dubhe::dubhe_assets_functions::add_package_asset<DappKey>(schema, asset_id);
   }
 }

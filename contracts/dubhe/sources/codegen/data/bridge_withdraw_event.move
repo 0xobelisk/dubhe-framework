@@ -26,6 +26,8 @@
 
   use dubhe::dubhe_bridge_config::BridgeConfig;
 
+  use dubhe::dubhe_dapp_metadata::DappMetadata;
+
   public struct BridgeWithdrawEvent has copy, drop {
     asset_id: u256,
     from: address,

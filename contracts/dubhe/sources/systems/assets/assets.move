@@ -26,7 +26,7 @@ module dubhe::dubhe_assets_system {
         is_freezable: bool
     ) {
         // TODO: Charge a fee for creating an asset
-        // dapps_system::ensure_no_safe_mode<DappKey>(dapp);
+        // dapps_system::ensure_no_pausable<DappKey>(dapp);
 
         // Create a new asset
         let asset_id = dubhe_assets_functions::do_create(

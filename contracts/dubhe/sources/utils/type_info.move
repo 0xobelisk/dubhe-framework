@@ -28,9 +28,12 @@ module dubhe::type_info {
         (package_id, module_name, struct_name, struct_name_with_type)
     }
 
-    public fun current_package_id<T>(): address {
-        let type_name = type_name::get<T>();
-        let (package_id, _, _, _) = parse_type_name(type_name);
-        package_id
+    public fun get_package_id<T>(): address {
+        let type_name = type_name::get<T>().get_address();
+        address::from_ascii_bytes(type_name.as_bytes())
+    }
+
+    public fun get_package_id_string<T>(): String {
+        type_name::get<T>().into_string()
     }
 }

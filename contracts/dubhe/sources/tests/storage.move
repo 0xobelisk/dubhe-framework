@@ -4,25 +4,38 @@ module dubhe::storage_tests {
     use dubhe::storage_map;
     use sui::test_scenario;
     use dubhe::storage_value;
-
+    use dubhe::dubhe_schema::Schema as DubheSchema;
+    use dubhe::dubhe_dapp_key::DappKey;
     public struct TestValue has drop, copy, store {
         value: u64,
     }
 
     #[test]
     public fun test_value() {
-        let mut scenario = test_scenario::begin(@0x0001);
-        let ctx = test_scenario::ctx(&mut scenario);
+        let deployer = @0x0001;
+        let mut scenario = test_scenario::begin(deployer);
+        dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
 
-        let mut value = storage_value::new(b"value", ctx);
-        value.set(TestValue { value: 1 });
+        let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
+
+        let dubhe_asset_id = 1;
+        let dapp_key = dubhe::dubhe_dapp_key::new();
+        let package_id = dubhe::type_info::get_package_id<DappKey>();
+        let amount = 100 * 1000;
+        dubhe::dubhe_assets_system::mint_asset(&mut schema, dapp_key, dubhe_asset_id, package_id, amount);
+
+        let ctx = test_scenario::ctx(&mut scenario);
+        let mut value = storage_value::new<TestValue>(b"value", ctx);
+        
+        value.set(&mut schema, dapp_key, TestValue { value: 1 });
+
         assert!(value.contains() == true);
         assert!(value.get() == TestValue { value: 1 });
         assert!(value[] == TestValue { value: 1 });
 
-        value.set(TestValue { value: 2 });
+        value.set(&mut schema, dapp_key, TestValue { value: 2 });
         assert!(value.get() == TestValue { value: 2 });
-        value.set(TestValue { value: 3 });
+        value.set(&mut schema, dapp_key, TestValue { value: 3 });
         assert!(value.get() == TestValue { value: 3 });
         assert!(value.try_get() == option::some(TestValue { value: 3 }));
         assert!(value.is_empty() == false);
@@ -32,17 +45,21 @@ module dubhe::storage_tests {
         assert!(value.try_get() == option::none<TestValue>());
         assert!(value.is_empty() == true);
 
-        value.set(TestValue { value: 4 });
+        value.set(&mut schema, dapp_key, TestValue { value: 4 });
         assert!(value.contains() == true);
         assert!(value.try_remove() == option::some(TestValue { value: 4 }));
         assert!(value.try_remove() == option::none<TestValue>());
         assert!(value.contains() == false);
 
-        let x: u64 = 0;
-        x.range_do!(1000, |x| {
-            value.set(TestValue { value: x });
-        });
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer) == 4 * 100);
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, package_id) == 100 * 1000 - 4 * 100);
 
+        // let x: u64 = 0;
+        // x.range_do!(100, |x| {
+        //     value.set(&mut schema, dapp_key, TestValue { value: x });
+        // });
+
+        test_scenario::return_shared(schema);
         value.drop();
         scenario.end();
     }

@@ -24,8 +24,6 @@
 
   use sui::dynamic_field as df;
 
-  use dubhe::dubhe_dapp_metadata::DappMetadata;
-
   use dubhe::dubhe_account_status::AccountStatus;
 
   use dubhe::dubhe_asset_status::AssetStatus;
@@ -42,62 +40,10 @@
 
   use dubhe::dubhe_bridge_config::BridgeConfig;
 
+  use dubhe::dubhe_dapp_metadata::DappMetadata;
+
   public struct Schema has key, store {
     id: UID,
-  }
-
-  // Default storage
-
-  public fun borrow_dapp__admin(self: &Schema): &StorageValue<address> {
-    storage::borrow_field(&self.id, b"dapp__admin")
-  }
-
-  public fun borrow_dapp__package_id(self: &Schema): &StorageValue<address> {
-    storage::borrow_field(&self.id, b"dapp__package_id")
-  }
-
-  public fun borrow_dapp__version(self: &Schema): &StorageValue<u32> {
-    storage::borrow_field(&self.id, b"dapp__version")
-  }
-
-  public fun borrow_dapp__metadata(self: &Schema): &StorageValue<DappMetadata> {
-    storage::borrow_field(&self.id, b"dapp__metadata")
-  }
-
-  public fun borrow_dapp__safe_mode(self: &Schema): &StorageValue<bool> {
-    storage::borrow_field(&self.id, b"dapp__safe_mode")
-  }
-
-  public fun borrow_dapp__authorised_schemas(self: &Schema): &StorageValue<vector<address>> {
-    storage::borrow_field(&self.id, b"dapp__authorised_schemas")
-  }
-
-  public fun borrow_dapp__schemas(self: &Schema): &StorageValue<vector<address>> {
-    storage::borrow_field(&self.id, b"dapp__schemas")
-  }
-
-  public(package) fun dapp__admin(self: &mut Schema): &mut StorageValue<address> {
-    storage::borrow_mut_field(&mut self.id, b"dapp__admin")
-  }
-
-  public(package) fun dapp__package_id(self: &mut Schema): &mut StorageValue<address> {
-    storage::borrow_mut_field(&mut self.id, b"dapp__package_id")
-  }
-
-  public(package) fun dapp__version(self: &mut Schema): &mut StorageValue<u32> {
-    storage::borrow_mut_field(&mut self.id, b"dapp__version")
-  }
-
-  public(package) fun dapp__metadata(self: &mut Schema): &mut StorageValue<DappMetadata> {
-    storage::borrow_mut_field(&mut self.id, b"dapp__metadata")
-  }
-
-  public(package) fun dapp__safe_mode(self: &mut Schema): &mut StorageValue<bool> {
-    storage::borrow_mut_field(&mut self.id, b"dapp__safe_mode")
-  }
-
-  public(package) fun dapp__authorised_schemas(self: &mut Schema): &mut StorageValue<vector<address>> {
-    storage::borrow_mut_field(&mut self.id, b"dapp__authorised_schemas")
   }
 
   public fun borrow_next_asset_id(self: &Schema): &StorageValue<u256> {
@@ -180,6 +126,46 @@
     storage::borrow_mut_field(&mut self.id, b"bridge")
   }
 
+  public fun borrow_dapp_admin(self: &Schema): &StorageMap<address, address> {
+    storage::borrow_field(&self.id, b"dapp_admin")
+  }
+
+  public(package) fun dapp_admin(self: &mut Schema): &mut StorageMap<address, address> {
+    storage::borrow_mut_field(&mut self.id, b"dapp_admin")
+  }
+
+  public fun borrow_dapp_version(self: &Schema): &StorageMap<address, u32> {
+    storage::borrow_field(&self.id, b"dapp_version")
+  }
+
+  public(package) fun dapp_version(self: &mut Schema): &mut StorageMap<address, u32> {
+    storage::borrow_mut_field(&mut self.id, b"dapp_version")
+  }
+
+  public fun borrow_dapp_pausable(self: &Schema): &StorageMap<address, bool> {
+    storage::borrow_field(&self.id, b"dapp_pausable")
+  }
+
+  public(package) fun dapp_pausable(self: &mut Schema): &mut StorageMap<address, bool> {
+    storage::borrow_mut_field(&mut self.id, b"dapp_pausable")
+  }
+
+  public fun borrow_dapp_metadata(self: &Schema): &StorageMap<address, DappMetadata> {
+    storage::borrow_field(&self.id, b"dapp_metadata")
+  }
+
+  public(package) fun dapp_metadata(self: &mut Schema): &mut StorageMap<address, DappMetadata> {
+    storage::borrow_mut_field(&mut self.id, b"dapp_metadata")
+  }
+
+  public fun borrow_dapp_package_id(self: &Schema): &StorageMap<address, address> {
+    storage::borrow_field(&self.id, b"dapp_package_id")
+  }
+
+  public(package) fun dapp_package_id(self: &mut Schema): &mut StorageMap<address, address> {
+    storage::borrow_mut_field(&mut self.id, b"dapp_package_id")
+  }
+
   public(package) fun create(ctx: &mut TxContext): Schema {
     let mut id = object::new(ctx);
     storage::add_field<StorageValue<u256>>(&mut id, b"next_asset_id", storage_value_internal::new(b"next_asset_id", ctx));
@@ -192,6 +178,11 @@
     storage::add_field<StorageValue<u256>>(&mut id, b"min_liquidity", storage_value_internal::new(b"min_liquidity", ctx));
     storage::add_field<StorageDoubleMap<u256, u256, Pool>>(&mut id, b"pools", storage_double_map_internal::new(b"pools", ctx));
     storage::add_field<StorageMap<String, BridgeConfig>>(&mut id, b"bridge", storage_map_internal::new(b"bridge", ctx));
+    storage::add_field<StorageMap<address, address>>(&mut id, b"dapp_admin", storage_map_internal::new(b"dapp_admin", ctx));
+    storage::add_field<StorageMap<address, u32>>(&mut id, b"dapp_version", storage_map_internal::new(b"dapp_version", ctx));
+    storage::add_field<StorageMap<address, bool>>(&mut id, b"dapp_pausable", storage_map_internal::new(b"dapp_pausable", ctx));
+    storage::add_field<StorageMap<address, DappMetadata>>(&mut id, b"dapp_metadata", storage_map_internal::new(b"dapp_metadata", ctx));
+    storage::add_field<StorageMap<address, address>>(&mut id, b"dapp_package_id", storage_map_internal::new(b"dapp_package_id", ctx));
     Schema { id }
   }
 
@@ -204,16 +195,6 @@
   }
 
   public fun migrate(_schema: &mut Schema, _ctx: &mut TxContext) {}
-
-  public(package) fun upgrade(schema: &mut Schema, new_package_id: address, new_version: u32, ctx: &mut TxContext) {
-    assert!(schema.dapp__metadata().contains(), 0);
-    assert!(schema.dapp__admin().get() == ctx.sender(), 0);
-    schema.dapp__package_id().set(new_package_id);
-    let current_version = schema.dapp__version()[];
-    assert!(current_version < new_version, 0);
-    schema.dapp__version().set(new_version);
-    schema.migrate(ctx);
-  }
 
   // ======================================== View Functions ========================================
 
@@ -255,6 +236,26 @@
 
   public fun get_bridge(self: &Schema, key: String): &BridgeConfig {
     self.borrow_bridge().get(key)
+  }
+
+  public fun get_dapp_admin(self: &Schema, key: address): &address {
+    self.borrow_dapp_admin().get(key)
+  }
+
+  public fun get_dapp_version(self: &Schema, key: address): &u32 {
+    self.borrow_dapp_version().get(key)
+  }
+
+  public fun get_dapp_pausable(self: &Schema, key: address): &bool {
+    self.borrow_dapp_pausable().get(key)
+  }
+
+  public fun get_dapp_metadata(self: &Schema, key: address): &DappMetadata {
+    self.borrow_dapp_metadata().get(key)
+  }
+
+  public fun get_dapp_package_id(self: &Schema, key: address): &address {
+    self.borrow_dapp_package_id().get(key)
   }
 
   // =========================================================================================================

@@ -24,6 +24,8 @@
 
   use dubhe::dubhe_bridge_config::BridgeConfig;
 
+  use dubhe::dubhe_dapp_metadata::DappMetadata;
+
   use dubhe::dubhe_asset_created_event::AssetCreatedEvent;
 
   use dubhe::dubhe_asset_created_event;

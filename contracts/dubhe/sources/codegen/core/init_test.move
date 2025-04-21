@@ -9,7 +9,7 @@
   public fun deploy_dapp_for_testing(scenario: &mut Scenario) {
     let ctx = test_scenario::ctx(scenario);
     let clock = clock::create_for_testing(ctx);
-    dubhe::dubhe_genesis::run(&clock,  ctx);
+    dubhe::dubhe_genesis::run(&clock, ctx);
     clock::destroy_for_testing(clock);
     test_scenario::next_tx(scenario, ctx.sender());
   }
