@@ -6,6 +6,8 @@ use sui::dynamic_field as field;
 use dubhe::storage_event;
 use std::option::some;
 use std::option::none;
+use dubhe::dubhe_schema::Schema;
+use dubhe::dubhe_dapp_key::DappKey;
 
 public struct StorageMap<phantom K: copy + drop + store, phantom V: copy + drop + store> has key, store {
     /// the ID of this Storage
@@ -26,7 +28,8 @@ public fun new<K: copy + drop + store, V: copy + drop + store>(name: vector<u8>,
 }
 
 /// Adds a key-value pair to the table `table: &mut Table<K, V>`
-public fun set<K: copy + drop + store, V: copy + drop + store>(table: &mut StorageMap<K, V>, k: K, v: V) {
+public fun set<K: copy + drop + store, V: copy + drop + store>(table: &mut StorageMap<K, V>, dubhe_schema: &mut Schema, _: DappKey, k: K, v: V) {
+    dubhe::dubhe_assets_functions::charge_set_fee<DappKey>(dubhe_schema);
     if (table.contains(k)) {
         field::remove<K, V>(&mut table.id, k);
         field::add(&mut table.id, k, v);

@@ -28,6 +28,8 @@
 
   use dubhe::dubhe_dapp_metadata::DappMetadata;
 
+  use dubhe::dubhe_dapp_stats::DappStats;
+
   public struct PoolCreatedEvent has copy, drop {
     creator: address,
     asset1_id: u256,

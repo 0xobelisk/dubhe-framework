@@ -42,6 +42,8 @@
 
   use dubhe::dubhe_dapp_metadata::DappMetadata;
 
+  use dubhe::dubhe_dapp_stats::DappStats;
+
   public struct Schema has key, store {
     id: UID,
   }
@@ -166,6 +168,14 @@
     storage::borrow_mut_field(&mut self.id, b"dapp_package_id")
   }
 
+  public fun borrow_dapp_stats(self: &Schema): &StorageMap<address, DappStats> {
+    storage::borrow_field(&self.id, b"dapp_stats")
+  }
+
+  public(package) fun dapp_stats(self: &mut Schema): &mut StorageMap<address, DappStats> {
+    storage::borrow_mut_field(&mut self.id, b"dapp_stats")
+  }
+
   public(package) fun create(ctx: &mut TxContext): Schema {
     let mut id = object::new(ctx);
     storage::add_field<StorageValue<u256>>(&mut id, b"next_asset_id", storage_value_internal::new(b"next_asset_id", ctx));
@@ -183,6 +193,7 @@
     storage::add_field<StorageMap<address, bool>>(&mut id, b"dapp_pausable", storage_map_internal::new(b"dapp_pausable", ctx));
     storage::add_field<StorageMap<address, DappMetadata>>(&mut id, b"dapp_metadata", storage_map_internal::new(b"dapp_metadata", ctx));
     storage::add_field<StorageMap<address, address>>(&mut id, b"dapp_package_id", storage_map_internal::new(b"dapp_package_id", ctx));
+    storage::add_field<StorageMap<address, DappStats>>(&mut id, b"dapp_stats", storage_map_internal::new(b"dapp_stats", ctx));
     Schema { id }
   }
 
@@ -256,6 +267,10 @@
 
   public fun get_dapp_package_id(self: &Schema, key: address): &address {
     self.borrow_dapp_package_id().get(key)
+  }
+
+  public fun get_dapp_stats(self: &Schema, key: address): &DappStats {
+    self.borrow_dapp_stats().get(key)
   }
 
   // =========================================================================================================

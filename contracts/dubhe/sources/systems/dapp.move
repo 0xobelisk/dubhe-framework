@@ -11,6 +11,7 @@ module dubhe::dubhe_dapp_system {
   use sui::transfer::public_share_object;
 
   use dubhe::dubhe_schema::Schema;
+  use dubhe::dubhe_dapp_stats;
 
   use dubhe::dubhe_dapp_metadata;
 
@@ -20,6 +21,7 @@ module dubhe::dubhe_dapp_system {
 
   use dubhe::storage_value_internal::{Self, StorageValue};
 
+  use dubhe::dubhe_dapp_key;
   public fun create_dapp<DappKey: copy + drop>(
     schema: &mut Schema,
     _: DappKey,
@@ -32,6 +34,7 @@ module dubhe::dubhe_dapp_system {
     schema.dapp_metadata().set(package_id, dapp_metadata);
     schema.dapp_package_id().set(package_id, package_id);
     schema.dapp_pausable().set(package_id, false);
+    schema.dapp_stats().set(package_id, dubhe_dapp_stats::new(100000, 100000, 0, 0));
   }
 
    public fun upgrade_dapp<DappKey: copy + drop>(schema: &mut Schema, _: DappKey, new_package_id: address, new_version: u32, ctx: &mut TxContext) {
@@ -80,6 +83,20 @@ module dubhe::dubhe_dapp_system {
     let admin = schema.dapp_admin().try_get(package_id);
     assert!(admin == option::some(ctx.sender()), 0);
     schema.dapp_pausable().set(package_id, pausable);
+  }
+
+  public entry fun set_dapp_per_set_fee(schema: &mut Schema, package_id: address, per_set_fee: u256, ctx: &TxContext) {
+    ensure_dapp_admin_sign(schema, dubhe_dapp_key::new(), ctx);
+    let mut dapp_stats = schema.dapp_stats()[package_id];
+    dapp_stats.set_per_set_fee(per_set_fee);
+    schema.dapp_stats().set(package_id, dapp_stats);
+  }
+
+  public entry fun set_dapp_remaining_set_count(schema: &mut Schema, package_id: address, remaining_set_count: u256, ctx: &TxContext) {
+    ensure_dapp_admin_sign(schema, dubhe_dapp_key::new(), ctx);
+    let mut dapp_stats = schema.dapp_stats()[package_id];
+    dapp_stats.set_remaining_set_count(remaining_set_count);
+    schema.dapp_stats().set(package_id, dapp_stats);
   }
 
   public fun ensure_dapp_not_pausable<DappKey: copy + drop>(schema: &mut Schema, _: DappKey) {

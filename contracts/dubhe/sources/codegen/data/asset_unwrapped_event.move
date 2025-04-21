@@ -28,6 +28,8 @@
 
   use dubhe::dubhe_dapp_metadata::DappMetadata;
 
+  use dubhe::dubhe_dapp_stats::DappStats;
+
   public struct AssetUnwrappedEvent has copy, drop {
     from: address,
     asset_id: u256,

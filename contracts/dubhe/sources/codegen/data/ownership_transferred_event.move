@@ -28,6 +28,8 @@
 
   use dubhe::dubhe_dapp_metadata::DappMetadata;
 
+  use dubhe::dubhe_dapp_stats::DappStats;
+
   public struct OwnershipTransferredEvent has copy, drop {
     asset_id: u256,
     from: address,

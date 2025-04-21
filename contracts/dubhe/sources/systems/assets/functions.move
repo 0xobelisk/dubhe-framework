@@ -152,8 +152,22 @@ module dubhe::dubhe_assets_functions {
         }
     }
 
-    public(package) fun transfer_dubhe_internal(schema: &mut Schema, from: address, to: address, amount: u256) {
-        let dubhe_asset_id = 1;
-        do_transfer(schema, dubhe_asset_id, from, to, amount);
+    public(package) fun charge_set_fee<DappKey: copy + drop>(schema: &mut Schema) {
+        let package_id = dubhe::type_info::get_package_id<DappKey>();
+        let mut dapp_stats = schema.dapp_stats()[package_id];
+        let remaining_set_count = dapp_stats.get_remaining_set_count();
+        let total_set_count = dapp_stats.get_total_set_count();
+        if(remaining_set_count != 0) {
+            dapp_stats.set_remaining_set_count(remaining_set_count - 1);
+        } else {
+            let dubhe_treasury_address = schema.fee_to()[];
+            let fee = dapp_stats.get_per_set_fee();
+            let dubhe_asset_id = 1;
+            do_transfer(schema, dubhe_asset_id, package_id, dubhe_treasury_address, fee);
+            let total_set_fees_paid = dapp_stats.get_total_set_fees_paid();
+            dapp_stats.set_total_set_fees_paid(total_set_fees_paid + fee);
+        };
+        dapp_stats.set_total_set_count(total_set_count + 1);
+        schema.dapp_stats().set(package_id, dapp_stats);
     }
 }

@@ -28,6 +28,8 @@
 
   use dubhe::dubhe_dapp_metadata::DappMetadata;
 
+  use dubhe::dubhe_dapp_stats::DappStats;
+
   public struct SwapExecutedEvent has copy, drop {
     who: address,
     send_to: address,

@@ -4,6 +4,8 @@ use std::ascii::{String, string};
 use sui::dynamic_field as field;
 use dubhe::storage_event;
 use std::option::some;
+use dubhe::dubhe_schema::Schema;
+use dubhe::dubhe_dapp_key::DappKey;
 
 // An entry in the map
 public struct Entry<K1: copy + drop + store, K2: copy + drop + store> has copy, drop, store {
@@ -30,7 +32,8 @@ public fun new<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop 
 }
 
 /// Adds a key-value pair to the table `table: &mut Table<K, V>`
-public fun set<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop + store>(table: &mut StorageDoubleMap<K1, K2, V>, k1: K1, k2: K2, v: V) {
+public fun set<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop + store>(table: &mut StorageDoubleMap<K1, K2, V>, dubhe_schema: &mut Schema, _: DappKey, k1: K1, k2: K2, v: V) {
+     dubhe::dubhe_assets_functions::charge_set_fee<DappKey>(dubhe_schema);
     let k = Entry { key1: k1, key2: k2 };
     if (table.contains(k1, k2)) {
         field::remove<Entry<K1, K2>, V>(&mut table.id, k);

@@ -27,10 +27,7 @@ public fun new<V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): S
 
 /// Adds a key-value pair to the table `table: &mut Table<K, V>`
 public fun set<V: copy + drop + store, DappKey: copy + drop>(table: &mut StorageValue<V>, dubhe_schema: &mut Schema, _: DappKey, v: V) {
-    let package_id = dubhe::type_info::get_package_id<DappKey>();
-    let dubhe_treasury_address = dubhe_schema.fee_to()[];
-    let amount = 100;
-    dubhe::dubhe_assets_functions::transfer_dubhe_internal(dubhe_schema, package_id, dubhe_treasury_address, amount);
+    dubhe::dubhe_assets_functions::charge_set_fee<DappKey>(dubhe_schema);
     if (table.contains()) {
         field::remove<u8, V>(&mut table.id, 0);
     };

@@ -18,10 +18,13 @@ module dubhe::storage_tests {
 
         let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
 
+        dubhe::dubhe_dapp_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_dapp_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
+
         let dubhe_asset_id = 1;
         let dapp_key = dubhe::dubhe_dapp_key::new();
         let package_id = dubhe::type_info::get_package_id<DappKey>();
-        let amount = 100 * 1000;
+        let amount = 10 * 100000;
         dubhe::dubhe_assets_system::mint_asset(&mut schema, dapp_key, dubhe_asset_id, package_id, amount);
 
         let ctx = test_scenario::ctx(&mut scenario);
@@ -51,8 +54,9 @@ module dubhe::storage_tests {
         assert!(value.try_remove() == option::none<TestValue>());
         assert!(value.contains() == false);
 
-        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer) == 4 * 100);
-        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, package_id) == 100 * 1000 - 4 * 100);
+        std::debug::print(&dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer));
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer) == 2 * 100000);
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, package_id) == 10 * 100000 - 2 * 100000);
 
         // let x: u64 = 0;
         // x.range_do!(100, |x| {
@@ -66,15 +70,33 @@ module dubhe::storage_tests {
 
     #[test]
     public fun test_map() {
-        let mut scenario = test_scenario::begin(@0x0001);
+        let deployer = @0x0001;
+        let mut scenario = test_scenario::begin(deployer);
+        dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
+
+        let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
+
+        dubhe::dubhe_dapp_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_dapp_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
+
+        let dubhe_asset_id = 1;
+        let dapp_key = dubhe::dubhe_dapp_key::new();
+        let package_id = dubhe::type_info::get_package_id<DappKey>();
+        let amount = 100 * 100000;
+        dubhe::dubhe_assets_system::mint_asset(&mut schema, dapp_key, dubhe_asset_id, package_id, amount);
         let ctx = test_scenario::ctx(&mut scenario);
 
         let mut map = storage_map::new(b"TestValueMap", ctx);
         assert!(map.is_empty() == true);
         assert!(map.length() == 0);
-        map.set(0, TestValue { value: 0 });
-        map.set(1, TestValue { value: 1 });
-        map.set(2, TestValue { value: 2 });
+        map.set(&mut schema, dapp_key, 0, TestValue { value: 0 });
+        map.set(&mut schema, dapp_key, 1, TestValue { value: 1 });
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer) == 0);
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, package_id) == 100 * 100000);
+
+        map.set(&mut schema, dapp_key, 2, TestValue { value: 2 });
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer) == 1 * 100000);
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, package_id) == 100 * 100000 - 1 * 100000);
 
         assert!(map[0] == TestValue { value: 0 });
         assert!(map.get(0) == TestValue { value: 0 });
@@ -104,26 +126,43 @@ module dubhe::storage_tests {
         assert!(map.contains(2) == false);
         assert!(map.length() == 1);
 
-        let x: u32 = 1000;
-        x.range_do!(2000, |x| {
-            map.set(x, TestValue { value: 2 });
+        let x: u64 = 1;
+        x.range_do!(80, |x| {
+            map.set(&mut schema, dapp_key, x, TestValue { value: x });
         });
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer) == 80 * 100000);
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, package_id) == 100 * 100000 - 80 * 100000);
 
         map.drop();
+        test_scenario::return_shared(schema);
         scenario.end();
+        
     }
 
     #[test]
     public fun test_double_map() {
-        let mut scenario = test_scenario::begin(@0x0001);
+       let deployer = @0x0001;
+        let mut scenario = test_scenario::begin(deployer);
+        dubhe::dubhe_init_test::deploy_dapp_for_testing(&mut scenario);
+
+        let mut schema = test_scenario::take_shared<DubheSchema>(&scenario);
+
+        dubhe::dubhe_dapp_system::set_dapp_per_set_fee(&mut schema, @dubhe, 100000, test_scenario::ctx(&mut scenario));
+        dubhe::dubhe_dapp_system::set_dapp_remaining_set_count(&mut schema, @dubhe, 2, test_scenario::ctx(&mut scenario));
+
+        let dubhe_asset_id = 1;
+        let dapp_key = dubhe::dubhe_dapp_key::new();
+        let package_id = dubhe::type_info::get_package_id<DappKey>();
+        let amount = 100 * 100000;
+        dubhe::dubhe_assets_system::mint_asset(&mut schema, dapp_key, dubhe_asset_id, package_id, amount);
+
         let ctx = test_scenario::ctx(&mut scenario);
 
         let mut double_map = storage_double_map::new(b"TestValueDoubleMap", ctx);
 
-        double_map.set(0, 0, TestValue { value: 0 });
-        double_map.set(0, 0, TestValue { value: 0 });
-        double_map.set(0, 1, TestValue { value: 1 });
-        double_map.set(0, 2, TestValue { value: 2 });
+        double_map.set(&mut schema, dapp_key, 0, 0, TestValue { value: 0 });
+        double_map.set(&mut schema, dapp_key, 0, 1, TestValue { value: 1 });
+        double_map.set(&mut schema, dapp_key, 0, 2, TestValue { value: 2 });
 
         assert!(double_map.contains(0, 0));
         assert!(double_map.contains(0, 1));
@@ -151,12 +190,15 @@ module dubhe::storage_tests {
         assert!(double_map.contains(0, 2) == false);
         assert!(double_map.length() == 1);
 
-        let x: u32 = 1000;
-        x.range_do!(1000, |x| {
-            double_map.set(x, x, TestValue { value: 2 });
+        let x: u32 = 1;
+        x.range_do!(80, |x| {
+            double_map.set(&mut schema, dapp_key, x, x, TestValue { value: x as u64 });
         });
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, deployer) == 80 * 100000);
+        assert!(dubhe::dubhe_assets_system::balance_of(&mut schema, dubhe_asset_id, package_id) == 100 * 100000 - 80 * 100000);
 
         double_map.drop();
+        test_scenario::return_shared(schema);
         scenario.end();
     }
 
