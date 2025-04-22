@@ -1,0 +1,26 @@
+{
+  "projectName": "dubhe",
+  "network": "testnet",
+  "packageId": "0x7cb7bfd80494c23a9bc2c8aeb04aef45f1729a9424162f49c41acf0ed8d0699d",
+  "schemaId": "0xa565cbb3641fff8f7e8ef384b215808db5f1837aa72c1cca1803b5d973699aac",
+  "schemas": {
+    "next_asset_id": "StorageValue<u256>",
+    "asset_metadata": "StorageMap<u256, AssetMetadata>",
+    "account": "StorageDoubleMap<u256, address, Account>",
+    "swap_fee": "StorageValue<u256>",
+    "lp_fee": "StorageValue<u256>",
+    "fee_to": "StorageValue<address>",
+    "max_swap_path_len": "StorageValue<u64>",
+    "min_liquidity": "StorageValue<u256>",
+    "pools": "StorageDoubleMap<u256, u256, Pool>",
+    "bridge": "StorageMap<String, BridgeConfig>",
+    "dapp_admin": "StorageMap<address, address>",
+    "dapp_version": "StorageMap<address, u32>",
+    "dapp_pausable": "StorageMap<address, bool>",
+    "dapp_metadata": "StorageMap<address, DappMetadata>",
+    "dapp_package_id": "StorageMap<address, address>",
+    "dapp_stats": "StorageMap<address, DappStats>"
+  },
+  "upgradeCap": "0x0d1f7daf9adb090da17e50683b021286512fb8128f9aa546c0708459b92cd43f",
+  "version": 1
+}
