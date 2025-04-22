@@ -21,7 +21,7 @@ public struct StorageDoubleMap<phantom K1: copy + drop + store, phantom K2: copy
 }
 
 /// Creates a new, empty table
-public fun new<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): StorageDoubleMap<K1, K2, V> {
+public(package) fun new<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): StorageDoubleMap<K1, K2, V> {
     StorageDoubleMap {
         id: object::new(ctx),
         name: string(name),
@@ -30,7 +30,7 @@ public fun new<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop 
 }
 
 /// Adds a key-value pair to the table `table: &mut Table<K, V>`
-public fun set<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop + store>(table: &mut StorageDoubleMap<K1, K2, V>, k1: K1, k2: K2, v: V) {
+public(package) fun set<K1: copy + drop + store, K2: copy + drop + store, V: copy + drop + store>(table: &mut StorageDoubleMap<K1, K2, V>, k1: K1, k2: K2, v: V) {
     let k = Entry { key1: k1, key2: k2 };
     if (table.contains(k1, k2)) {
         field::remove<Entry<K1, K2>, V>(&mut table.id, k);

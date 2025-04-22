@@ -17,7 +17,7 @@ public struct StorageMap<phantom K: copy + drop + store, phantom V: copy + drop 
 }
 
 /// Creates a new, empty table
-public fun new<K: copy + drop + store, V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): StorageMap<K, V> {
+public(package) fun new<K: copy + drop + store, V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): StorageMap<K, V> {
     StorageMap {
         id: object::new(ctx),
         name: string(name),
@@ -26,7 +26,7 @@ public fun new<K: copy + drop + store, V: copy + drop + store>(name: vector<u8>,
 }
 
 /// Adds a key-value pair to the table `table: &mut Table<K, V>`
-public fun set<K: copy + drop + store, V: copy + drop + store>(table: &mut StorageMap<K, V>, k: K, v: V) {
+public(package) fun set<K: copy + drop + store, V: copy + drop + store>(table: &mut StorageMap<K, V>, k: K, v: V) {
     if (table.contains(k)) {
         field::remove<K, V>(&mut table.id, k);
         field::add(&mut table.id, k, v);

@@ -16,7 +16,7 @@ public struct StorageValue<phantom V: copy + drop + store> has key, store {
 }
 
 /// Creates a new, empty table
-public fun new<V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): StorageValue<V> {
+public(package) fun new<V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): StorageValue<V> {
     StorageValue {
         id: object::new(ctx),
         name: string(name),
@@ -25,7 +25,7 @@ public fun new<V: copy + drop + store>(name: vector<u8>, ctx: &mut TxContext): S
 }
 
 /// Adds a key-value pair to the table `table: &mut Table<K, V>`
-public fun set<V: copy + drop + store>(table: &mut StorageValue<V>, v: V) {
+public(package) fun set<V: copy + drop + store>(table: &mut StorageValue<V>, v: V) {
     if (table.contains()) {
         field::remove<u8, V>(&mut table.id, 0);
     };
