@@ -66,6 +66,11 @@ public entry fun set_pausable(schema: &mut Schema, package_id: address, pausable
   schema.dapp_pausable().set(package_id, pausable);
 }
 
+public fun get_dapp_admin<DappKey: copy + drop>(schema: &mut Schema, _: DappKey): address {
+  let package_id = type_info::get_package_id<DappKey>();
+  schema.dapp_admin()[package_id]
+}
+
 public fun ensure_dapp_not_pausable<DappKey: copy + drop>(schema: &mut Schema, _: DappKey) {
   let package_id = type_info::get_package_id<DappKey>();
   let pausable = schema.dapp_pausable().try_get(package_id);
